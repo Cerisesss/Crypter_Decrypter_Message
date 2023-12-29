@@ -11,15 +11,15 @@ namespace Crypter_Decrypter_Message
         public static void Main(string[] args)
         {
             string message = "Hello World!";
-            string key = "boubouMocheEtMechant";
+            string key = "je t'aime boubou";
 
             Message msg = new Message(message, key);
 
-            string msgCoder = msg.Crypt(message, key);
+            string msgCoder = msg.Crypt();
             Console.WriteLine(msgCoder);
 
-            //string msgDecoder = msg.Decrypt(msgCoder, key);
-            //Console.WriteLine(msgDecoder);
+            string msgDecoder = msg.Decrypt(msgCoder, key);
+            Console.WriteLine(msgDecoder);
 
             Console.ReadKey();
         }

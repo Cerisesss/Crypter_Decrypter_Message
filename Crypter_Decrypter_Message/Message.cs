@@ -11,6 +11,7 @@ namespace Crypter_Decrypter_Message
     {
         string message;
         string key;
+        string iv;
 
         public Message(string message, string key)
         {
@@ -18,29 +19,19 @@ namespace Crypter_Decrypter_Message
             this.key = key;
         }
 
-        /*public string Crypt(string message, string key)
+        public string Crypt()
         {
             Aes aesAlg = Aes.Create();
-            aesAlg.Key = Encoding.UTF8.GetBytes(key);
+
+            byte[] keyBytes = Encoding.UTF8.GetBytes(key);
+            Array.Resize(ref keyBytes, 32); // Ajustez la taille de la clé si nécessaire (32 octets pour 256 bits)
+
+            aesAlg.Key = keyBytes;
+            byte[] plainBytes = Encoding.UTF8.GetBytes(message);
 
             ICryptoTransform encryptor = aesAlg.CreateEncryptor(aesAlg.Key, aesAlg.IV);
 
-            byte[] plainBytes = Encoding.UTF8.GetBytes(message);
-
-
-            return Convert.ToBase64String(encryptor);
-        }*/
-
-        public string Crypt(string message, string key)
-        {
-            Aes aesAlg = Aes.Create();
-            //aesAlg.Padding = PaddingMode.PKCS7;
-
-            //aesAlg.Key = Encoding.UTF8.GetBytes(key);
-
-            ICryptoTransform encryptor = aesAlg.CreateEncryptor(aesAlg.Key, aesAlg.IV);
-
-            byte[] plainBytes = Encoding.UTF8.GetBytes(message);
+            this.iv = Convert.ToBase64String(aesAlg.IV);
 
             MemoryStream msEncrypt = new MemoryStream();
             CryptoStream csEncrypt = new CryptoStream(msEncrypt, encryptor, CryptoStreamMode.Write);
@@ -56,10 +47,15 @@ namespace Crypter_Decrypter_Message
         {
             Aes aesAlg = Aes.Create();
 
+            aesAlg.IV = Convert.FromBase64String(this.iv);
+
             byte[] cipherBytes = Convert.FromBase64String(msgCoder);
+            byte[] keyBytes = Encoding.UTF8.GetBytes(key);
+            Array.Resize(ref keyBytes, 32); // Ajustez la taille de la clé si nécessaire (32 octets pour 256 bits)
+
+            aesAlg.Key = keyBytes;
 
             ICryptoTransform decryptor = aesAlg.CreateDecryptor(aesAlg.Key, aesAlg.IV);
-            aesAlg.Padding = PaddingMode.PKCS7;
 
             MemoryStream msDecrypt = new MemoryStream(cipherBytes);
             CryptoStream csDecrypt = new CryptoStream(msDecrypt, decryptor, CryptoStreamMode.Read);
