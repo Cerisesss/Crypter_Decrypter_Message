@@ -11,17 +11,23 @@ namespace Crypter_Decrypter_Message
     {
         string message;
         string key;
-        string iv;
+        string ivString;
 
-        public Message(string message, string key)
+        public Message(string message, string key) : this(message, key, "")
+        {
+        }
+
+        public Message(string message, string key, string ivString)
         {
             this.message = message;
             this.key = key;
+            this.ivString = ivString;
         }
 
-        public string Crypt()
+        public (string, string) Crypt(string message, string key)
         {
             Aes aesAlg = Aes.Create();
+            aesAlg.Padding = PaddingMode.PKCS7;
 
             byte[] keyBytes = Encoding.UTF8.GetBytes(key);
             Array.Resize(ref keyBytes, 32); // Ajustez la taille de la clé si nécessaire (32 octets pour 256 bits)
@@ -31,25 +37,29 @@ namespace Crypter_Decrypter_Message
 
             ICryptoTransform encryptor = aesAlg.CreateEncryptor(aesAlg.Key, aesAlg.IV);
 
-            this.iv = Convert.ToBase64String(aesAlg.IV);
 
             MemoryStream msEncrypt = new MemoryStream();
             CryptoStream csEncrypt = new CryptoStream(msEncrypt, encryptor, CryptoStreamMode.Write);
 
             csEncrypt.Write(plainBytes, 0, plainBytes.Length);
             csEncrypt.FlushFinalBlock();
-                
-            return Convert.ToBase64String(msEncrypt.ToArray());
+
+            string msgCoder = Convert.ToBase64String(msEncrypt.ToArray());
+            string ivString = Convert.ToBase64String(aesAlg.IV);
+
+
+            return (msgCoder, ivString);
         }
 
 
-        public string Decrypt(string msgCoder, string key)
+        public string Decrypt(string message, string key, string ivString)
         {
             Aes aesAlg = Aes.Create();
+            aesAlg.Padding = PaddingMode.PKCS7;
 
-            aesAlg.IV = Convert.FromBase64String(this.iv);
+            aesAlg.IV = Convert.FromBase64String(ivString);
 
-            byte[] cipherBytes = Convert.FromBase64String(msgCoder);
+            byte[] cipherBytes = Convert.FromBase64String(message);
             byte[] keyBytes = Encoding.UTF8.GetBytes(key);
             Array.Resize(ref keyBytes, 32); // Ajustez la taille de la clé si nécessaire (32 octets pour 256 bits)
 
