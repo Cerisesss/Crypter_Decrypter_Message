@@ -24,7 +24,7 @@ namespace Crypter_Decrypter_Message
             this.ivString = ivString;
         }
 
-        public (string, string) Crypt(string message, string key)
+        public string Crypt(string message, string key)
         {
             Aes aesAlg = Aes.Create();
             aesAlg.Padding = PaddingMode.PKCS7;
@@ -47,19 +47,25 @@ namespace Crypter_Decrypter_Message
             string msgCoder = Convert.ToBase64String(msEncrypt.ToArray());
             string ivString = Convert.ToBase64String(aesAlg.IV);
 
+            string combinedMessage = msgCoder + "::" + ivString;
 
-            return (msgCoder, ivString);
+            return combinedMessage;
         }
 
 
-        public string Decrypt(string message, string key, string ivString)
+        public string Decrypt(string message, string key)
         {
+            string[] parts = message.Split(new string[] { "::" }, StringSplitOptions.None);
+
+            string encryptedMessage = parts[0];
+            string ivString = parts[1];
+
             Aes aesAlg = Aes.Create();
             aesAlg.Padding = PaddingMode.PKCS7;
 
             aesAlg.IV = Convert.FromBase64String(ivString);
 
-            byte[] cipherBytes = Convert.FromBase64String(message);
+            byte[] cipherBytes = Convert.FromBase64String(encryptedMessage);
             byte[] keyBytes = Encoding.UTF8.GetBytes(key);
             Array.Resize(ref keyBytes, 32); // Ajustez la taille de la clé si nécessaire (32 octets pour 256 bits)
 

@@ -16,10 +16,10 @@ namespace Crypter_Decrypter_Message
 
             Message msg = new Message(message, key);
 
-            (string msgCoder, string ivString) = msg.Crypt(message, key);
+            string msgCoder = msg.Crypt(message, key);
             Console.WriteLine(msgCoder);
 
-            string msgDecoder = msg.Decrypt(msgCoder, key, ivString);
+            string msgDecoder = msg.Decrypt(msgCoder, key);
             Console.WriteLine(msgDecoder);
 
             Console.ReadKey();
