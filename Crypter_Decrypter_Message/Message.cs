@@ -24,6 +24,21 @@ namespace Crypter_Decrypter_Message
             this.ivString = ivString;
         }
 
+        public string GetMessage()
+        {
+            return this.message;
+        }
+
+        public override string ToString()
+        {
+            return this.GetMessage();
+        }
+
+        public string GetKey()
+        {
+            return this.key;
+        }
+
         public string Crypt(string message, string key)
         {
             Aes aesAlg = Aes.Create();
